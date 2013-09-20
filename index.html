@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>ajax test</title>
+    <script type="text/javascript"></script>
+</head>
+<body>
+<a href="#" onclick="get_JSON_asyn()">异步方式获取数据</a>
+<a href="#" onclick="get_JSON_sync()">同步方式获取数据</a>
+
+<div id="display"></div>
+<script type="text/javascript">
+    function get_JSON_asyn() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "json.json", false);// if use true , add event to xmlhtml.onreadystatechange = function(){...}
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send();
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            document.getElementById("display").innerHTML = "from asyn ajax request: " + xmlhttp.response;
+        }
+    }
+
+    function get_JSON_sync() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "json.json", true);// if use true , add event to xmlhtml.onreadystatechange = function(){...}
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send();
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("display").innerHTML = "from sync ajax request: " + xmlhttp.response;
+        }
+    }
+
+    function get_JSON_object(url, paras, callback) {
+        if (arguments.length < 1) throw new Error("need the url for JSON");
+        var xmlhttp = new XMLHttpRequest();
+        var hasParas = true;
+        if (typeof paras === "function" || arguments.length < 2) hasParas = false;
+        if (hasParas) {
+            xmlhttp.open("POST", url, false);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send(paras);
+        } else {
+            xmlhttp.open("GET", url, false);
+            xmlhttp.send(null);
+        }
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var jsonObject;
+            if (!JSON) {
+                eval("jsonObject =" + xmlhttp.response)
+            } else jsonObject = JSON.parse(xmlhttp.response);
+            if (typeof paras === "function") {
+                callback = paras;
+            }
+            return callback ? callback.call(jsonObject) : jsonObject;
+        }
+        else throw new Error("can't get the JSON object");
+    }
+
+</script>
+</body>
+</html>
