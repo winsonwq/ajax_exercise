@@ -61,6 +61,21 @@
         }
     }
 
+    function get_JSONS() {
+        var results = [];
+        var args = Array.prototype.slice.call(arguments);
+        var callback = args.pop();
+
+        args.forEach(function (val) {
+            get_JSON_object(val, function () {
+                results.push(this);
+                if (results.length == args.length) {
+                    callback && callback.call(this, results);
+                }
+            });
+        })
+    }
+
 </script>
 </body>
 </html>
