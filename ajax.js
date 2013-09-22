@@ -26,6 +26,17 @@ function getJSONAsync() {
 /* getJSONObject(url, callback) */
 /* getJSONObject(url, params, callback) */
 function getJSONObject(url, params, callback) {
+    /*
+    var args = Array.prototype.slice(arguments);
+    if (args.length == 0 || typeof(args[0]) != 'string') throw new Error('need url.');
+    
+    var arg, callback, params, url = args.shift();
+    while (arg = args.pop()) {
+        if (typeof arg == 'function') callback = arg;
+        else if (typeof arg == 'string') params = arg;
+    }
+    */
+    
     if (arguments.length < 1) throw new Error("need the url for JSON");
     var xmlhttp = new XMLHttpRequest();
     var hasParams = true;
