@@ -6,12 +6,12 @@
     <script type="text/javascript"></script>
 </head>
 <body>
-<a href="#" onclick="get_JSON_asyn()">异步方式获取数据</a>
-<a href="#" onclick="get_JSON_sync()">同步方式获取数据</a>
+<a href="#" onclick="getJSONAsync()">异步方式获取数据</a>
+<a href="#" onclick="getJSONSync()">同步方式获取数据</a>
 
 <div id="display"></div>
 <script type="text/javascript">
-    function get_JSON_sync() {
+    function getJSONSync() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "json.json", false);// false means sync way.
         xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -21,7 +21,7 @@
         }
     }
 
-    function get_JSON_asyn() {
+    function getJSONAsync() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "json.json", true);// if use true , add callback to xmlhtml.onreadystatechange = function(){...}
         xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -34,15 +34,19 @@
         xmlhttp.send();
     }
 
-    function get_JSON_object(url, paras, callback) {
+    /* getJSONObject(url) */
+    /* getJSONObject(url, params) */
+    /* getJSONObject(url, callback) */
+    /* getJSONObject(url, params, callback) */
+    function getJSONObject(url, params, callback) {
         if (arguments.length < 1) throw new Error("need the url for JSON");
         var xmlhttp = new XMLHttpRequest();
-        var hasParas = true;
-        if (typeof paras === "function" || arguments.length < 2) hasParas = false;
-        if (hasParas) {
+        var hasParams = true;
+        if (typeof params === "function" || arguments.length < 2) hasParams = false;
+        if (hasParams) {
             xmlhttp.open("POST", url, true);
             xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.send(paras);
+            xmlhttp.send(params);
         } else {
             xmlhttp.open("GET", url, true);
             xmlhttp.send(null);
@@ -51,24 +55,27 @@
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 var jsonObject;
                 if (!JSON) {
-                    eval("jsonObject =" + xmlhttp.response)
-                } else jsonObject = JSON.parse(xmlhttp.response);
-                if (typeof paras === "function") {
-                    callback = paras;
+                    jsonObject = eval('(' + xmlhttp.responseText + ')');
+                } else {
+                    jsonObject = JSON.parse(xmlhttp.responseText);
                 }
-                callback && callback.call(jsonObject);
+                
+                if (typeof params === "function") {
+                    callback = params;
+                }
+                callback && callback.call(jsonObject, xmlhttp);
             }
         }
     }
 
-    function get_JSONS() {
+    function getJSONs() {
         var results = [];
         var args = Array.prototype.slice.call(arguments);
         var callback = args.pop();
 
         args.forEach(function (val) {
-            get_JSON_object(val, function () {
-                results.push(this);
+            getJSONObject(val, function (json) {
+                results.push(json);
                 if (results.length == args.length) {
                     callback && callback.call(this, results);
                 }
